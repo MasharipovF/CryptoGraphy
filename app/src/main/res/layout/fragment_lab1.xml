@@ -76,8 +76,8 @@
             android:layout_height="match_parent"
             android:layout_marginStart="5dp"
             android:layout_weight="0.5"
-            android:textSize="10sp"
-            android:text="MATRIX" />
+            android:text="MATRIX"
+            android:textSize="10sp" />
     </LinearLayout>
 
     <RadioGroup

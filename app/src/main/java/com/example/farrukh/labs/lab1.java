@@ -30,7 +30,11 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Text;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
 
 public class lab1 extends AppCompatActivity {
 
@@ -244,6 +248,30 @@ public class lab1 extends AppCompatActivity {
                         return;
                     }
 
+                    //check key
+                    if (key_hor.getVisibility() == View.VISIBLE) {
+                        if (keyGenerator(key_hor.getText().toString()) == null) {
+                            key_hor.setError("Key is incorrect !");
+                            return;
+                        }
+                        if (!checkKey(keyGenerator(key_hor.getText().toString()), matrix_dimen_hor)) {
+                            key_hor.setError("Key must not contain negative numbers, be less than length of array or be higher than " + dimen_hor.getText());
+                            return;
+                        }
+                    }
+
+                    if (key_ver.getVisibility() == View.VISIBLE) {
+                        if (keyGenerator(key_ver.getText().toString()) == null) {
+                            key_ver.setError("Key is incorrect !");
+                            return;
+                        }
+                        if (!checkKey(keyGenerator(key_ver.getText().toString()), matrix_dimen_ver)) {
+                            key_ver.setError("Key must not contain negative numbers, be less than length of array or be higher than " + dimen_ver.getText());
+                            return;
+                        }
+                    }
+
+
                     result.setText("");
                     String tmpStr = msg.getText().toString();
                     msg_len = tmpStr.length();
@@ -321,6 +349,17 @@ public class lab1 extends AppCompatActivity {
                         }
                         resultTxt.setText(resultTxt.getText() + "\n");
                     }
+
+                    resultTxt.setText(resultTxt.getText() + "\n*****\n");
+                    k = 0;
+                    for (int i = 0; i < a; i++) {
+                        for (int j = 0; j < b; j++) {
+                            resultTxt.setText(resultTxt.getText() + " " + result_msg[k++]);
+                        }
+                        resultTxt.setText(resultTxt.getText() + "\n");
+                    }
+
+
                     break;
                 case R.id.radio_two_key:
 
@@ -489,9 +528,27 @@ public class lab1 extends AppCompatActivity {
             String[] tmpKey = strKey.split(" ", -1);
             key = new int[tmpKey.length];
             for (String str : tmpKey) {
+                if (!StringUtils.isNumeric(str.trim())) return null;
                 key[i++] = Integer.parseInt(str.trim());
             }
             return key;
+        }
+
+        boolean checkKey(int[] key, int dimen) {
+
+            if (key.length < dimen) return false;
+
+            int[] tmp = key;
+            Arrays.sort(tmp);
+            for (int i = 0; i < tmp.length - 1; i++) {
+                if (tmp[i] == tmp[i + 1]) return false;
+            }
+
+            for (int aKey : key) {
+                if (aKey <= 0) return false;
+                if (aKey > key.length) return false;
+            }
+            return true;
         }
     }
 
