@@ -1,6 +1,9 @@
 package com.example.farrukh.labs;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
@@ -16,6 +19,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -120,6 +124,7 @@ public class lab1 extends AppCompatActivity {
             final EditText key_ver = (EditText) rootView.findViewById(R.id.second_key);
             final EditText key_hor = (EditText) rootView.findViewById(R.id.first_key);
             RadioGroup radioGroup = (RadioGroup) rootView.findViewById(R.id.radio_group);
+            final Context context = getContext();
 
             if (getArguments().getString(ARG_SECTION_NUMBER).equals("Decryption"))
                 go_btn.setVisibility(View.GONE);
@@ -213,12 +218,13 @@ public class lab1 extends AppCompatActivity {
                     for (int i = 0; i < matrix_dimen_ver; i++) {
                         for (int j = 0; j < matrix_dimen_hor; j++) {
                             if (k >= msg_len) {
-                                result.setText(result.getText() + " " + "_");
+                                result.setText(result.getText() + " " + " ");
                             } else {
                                 result.setText(result.getText() + " " + tmpStr.toCharArray()[k++]);
                             }
                         }
                         result.setText(result.getText() + "\n");
+
                     }
                 }
             });
@@ -231,12 +237,17 @@ public class lab1 extends AppCompatActivity {
                         msg.setError("Fill in this field first!");
                         return;
                     }
-                    if (TextUtils.isEmpty(dimen_ver.getText())) {
+                    if (TextUtils.isEmpty(dimen_ver.getText()) || Integer.parseInt(dimen_ver.getText().toString()) > 10) {
                         dimen_ver.setError("Fill in field first!");
                         return;
                     }
-                    if (TextUtils.isEmpty(dimen_hor.getText())) {
+                    if (TextUtils.isEmpty(dimen_hor.getText()) || Integer.parseInt(dimen_hor.getText().toString()) > 10) {
                         dimen_hor.setError("Fill in field first!");
+                        return;
+                    }
+
+                    if (msg.getText().length() > 100) {
+                        msg.setError("Too long!");
                         return;
                     }
                     if (key_hor.getVisibility() == View.VISIBLE && TextUtils.isEmpty(key_hor.getText())) {
@@ -254,8 +265,8 @@ public class lab1 extends AppCompatActivity {
                             key_hor.setError("Key is incorrect !");
                             return;
                         }
-                        if (!checkKey(keyGenerator(key_hor.getText().toString()), matrix_dimen_hor)) {
-                            key_hor.setError("Key must not contain negative numbers, be less than length of array or be higher than " + dimen_hor.getText());
+                        if (!checkKey(key_hor.getText().toString(), Integer.parseInt(dimen_hor.getText().toString()))) {
+                            key_hor.setError("Key is incorrect !");
                             return;
                         }
                     }
@@ -265,8 +276,8 @@ public class lab1 extends AppCompatActivity {
                             key_ver.setError("Key is incorrect !");
                             return;
                         }
-                        if (!checkKey(keyGenerator(key_ver.getText().toString()), matrix_dimen_ver)) {
-                            key_ver.setError("Key must not contain negative numbers, be less than length of array or be higher than " + dimen_ver.getText());
+                        if (!checkKey(key_ver.getText().toString(), Integer.parseInt(dimen_ver.getText().toString()))) {
+                            key_ver.setError("Key is incorrect !");
                             return;
                         }
                     }
@@ -305,6 +316,13 @@ public class lab1 extends AppCompatActivity {
                     }
                     result.setText(result.getText() + "\nRESULT: " + result_string + "\n\n\n");
 
+                    if (getArguments().getString(ARG_SECTION_NUMBER).equals("Encryption")) {
+                        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("result", result_string);
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(getContext(), "Result has been copied to clipboard!", Toast.LENGTH_SHORT).show();
+                    }
+
                 }
             });
 
@@ -317,13 +335,21 @@ public class lab1 extends AppCompatActivity {
             int msg_len = message.length;
             char[] result_msg = new char[a * b];
             char[][] matrix = new char[a][b];
+            char[][] result_matrix = new char[a][b];
             for (int j = 0; j < b; j++) {
                 k = 0;
                 while (k < a) {
-                    if (g >= msg_len) matrix[k++][j] = '_';
-                    else matrix[k++][j] = message[g++];
+                    if (g >= msg_len) {
+                        matrix[k][j] = ' ';
+                        result_matrix[k++][j] = ' ';
+                    } else {
+                        matrix[k][j] = message[g];
+                        result_matrix[k++][j] = message[g++];
+                    }
                 }
             }
+
+            showMatrix(resultTxt, matrix, a, b);
 
             int[] key1, key2;
 
@@ -333,9 +359,7 @@ public class lab1 extends AppCompatActivity {
                     for (int i = 0; i < a; i++) {
                         for (int j = 0; j < b; j++) {
                             result_msg[k++] = matrix[i][j];
-                            resultTxt.setText(resultTxt.getText() + " " + matrix[i][j]);
                         }
-                        resultTxt.setText(resultTxt.getText() + "\n");
                     }
                     break;
                 case R.id.radio_one_key:
@@ -344,20 +368,11 @@ public class lab1 extends AppCompatActivity {
 
                     for (int i = 0; i < a; i++) {
                         for (int j = 0; j < b; j++) {
-                            result_msg[k++] = matrix[i][key1[j] - 1];
-                            resultTxt.setText(resultTxt.getText() + " " + matrix[i][j]);
+                            result_matrix[i][key1[j]] = matrix[i][j];
                         }
-                        resultTxt.setText(resultTxt.getText() + "\n");
                     }
-
                     resultTxt.setText(resultTxt.getText() + "\n*****\n");
-                    k = 0;
-                    for (int i = 0; i < a; i++) {
-                        for (int j = 0; j < b; j++) {
-                            resultTxt.setText(resultTxt.getText() + " " + result_msg[k++]);
-                        }
-                        resultTxt.setText(resultTxt.getText() + "\n");
-                    }
+                    showMatrix(resultTxt, result_matrix, a, b);
 
 
                     break;
@@ -365,38 +380,39 @@ public class lab1 extends AppCompatActivity {
 
                     key1 = keyGenerator(first_key);
                     key2 = keyGenerator(second_key);
+                    char[][] tmp_matrix = new char[a][b];
 
-                    showMatrix(resultTxt, matrix, a, b);
-
-                    char[][] tmpmatrix = new char[a][b];
-                    for (int j = 0; j < b; j++) {
-                        for (g = 0; g < a; g++) {
-                            tmpmatrix[g][j] = matrix[g][key1[j] - 1];
-                        }
+                    for (int i = 0; i < key2.length; i++) {
+                        Log.d("TAG", "key 2: " + key2[i]);
                     }
-
-                    resultTxt.setText(resultTxt.getText() + "\n*****\n");
-                    showMatrix(resultTxt, tmpmatrix, a, b);
-
-                    for (int i = 0; i < a; i++) {
-                        for (g = 0; g < b; g++) {
-                            matrix[i][g] = tmpmatrix[key2[i] - 1][g];
-                        }
-                    }
-
-                    resultTxt.setText(resultTxt.getText() + "\n*****\n");
-                    showMatrix(resultTxt, matrix, a, b);
-
-                    k = 0;
                     for (int i = 0; i < a; i++) {
                         for (int j = 0; j < b; j++) {
-                            result_msg[k++] = matrix[i][j];
+                            tmp_matrix[i][key1[j]] = matrix[i][j];
                         }
                     }
+                    resultTxt.setText(resultTxt.getText() + "\n*****\n");
+                    showMatrix(resultTxt, tmp_matrix, a, b);
+
+                    for (int i = 0; i < a; i++) {
+                        for (int j = 0; j < b; j++) {
+                            result_matrix[key2[i]][j] = tmp_matrix[i][j];
+                            Log.d("TAG", "matrix: " + key2[i] + "  " + j + "   index: " + i);
+                        }
+                    }
+
+                    resultTxt.setText(resultTxt.getText() + "\n*****\n");
+                    showMatrix(resultTxt, result_matrix, a, b);
 
                     break;
                 default:
                     break;
+            }
+
+            g = 0;
+            for (int i = 0; i < a; i++) {
+                for (int j = 0; j < b; j++) {
+                    result_msg[g++] = result_matrix[i][j];
+                }
             }
 
             for (Character c : result_msg) {
@@ -410,14 +426,17 @@ public class lab1 extends AppCompatActivity {
             int k = 0, g = 0;
             char[] result_msg = new char[a * b];
             char[][] matrix = new char[a][b];
+            char[][] result_matrix = new char[a][b];
 
             for (int i = 0; i < a; i++) {
                 for (int j = 0; j < b; j++) {
                     if (k >= msg_len) {
-                        matrix[i][j] = '_';
-                        resultTxt.setText(resultTxt.getText() + " " + "_");
+                        matrix[i][j] = ' ';
+                        result_matrix[i][j] = ' ';
+                        resultTxt.setText(resultTxt.getText() + " " + " ");
                     } else {
-                        matrix[i][j] = message[k++];
+                        matrix[i][j] = message[k];
+                        result_matrix[i][j] = message[k++];
                         resultTxt.setText(resultTxt.getText() + " " + matrix[i][j]);
                     }
                 }
@@ -425,71 +444,34 @@ public class lab1 extends AppCompatActivity {
             }
 
             // for switch
-            int cur_key;
             int[] key1, key2;
-            char swapChar;
 
             switch (type) {
                 case R.id.radio_one_key:
-                    cur_key = 1;
                     k = 0;
                     key1 = keyGenerator(first_key);
-                    while (cur_key < b) {
-                        if (key1[k] == cur_key) {
-                            for (g = 0; g < a; g++) {
-                                swapChar = matrix[g][k];
-                                matrix[g][k] = matrix[g][cur_key - 1];
-                                matrix[g][cur_key - 1] = swapChar;
-                            }
-                            cur_key++;
-                            k = 0;
-                        }
-                        k++;
-                    }
 
+                    for (int i = 0; i < a; i++) {
+                        for (int j = 0; j < b; j++) {
+                            result_matrix[i][j] = matrix[i][key1[j]];
+                        }
+                    }
                     resultTxt.setText(resultTxt.getText() + "\n*****\n");
-                    showMatrix(resultTxt, matrix, a, b);
+                    showMatrix(resultTxt, result_matrix, a, b);
                     break;
                 case R.id.radio_two_key:
 
                     key1 = keyGenerator(first_key);
                     key2 = keyGenerator(second_key);
 
-                    ////////////////////////////// 1 step
-                    cur_key = 1;
-                    k = 0;
-                    while (cur_key < b) {
-                        if (key1[k] == cur_key) {
-                            for (g = 0; g < a; g++) {
-                                swapChar = matrix[g][k];
-                                matrix[g][k] = matrix[g][cur_key - 1];
-                                matrix[g][cur_key - 1] = swapChar;
-                            }
-                            cur_key++;
-                            k = 0;
+                    for (int i = 0; i < a; i++) {
+                        for (int j = 0; j < b; j++) {
+                            result_matrix[i][j] = matrix[key2[i]][key1[j]];
                         }
-                        k++;
                     }
-                    resultTxt.setText(resultTxt.getText() + "\n*****\n");
-                    showMatrix(resultTxt, matrix, a, b);
 
-                    ///////////////////////////// 2 step
-                    cur_key = 1;
-                    k = 0;
-                    while (cur_key < a) {
-                        if (key2[k] == cur_key) {
-                            for (g = 0; g < b; g++) {
-                                swapChar = matrix[k][g];
-                                matrix[k][g] = matrix[cur_key - 1][g];
-                                matrix[cur_key - 1][g] = swapChar;
-                            }
-                            cur_key++;
-                            k = 0;
-                        }
-                        k++;
-                    }
                     resultTxt.setText(resultTxt.getText() + "\n*****\n");
-                    showMatrix(resultTxt, matrix, a, b);
+                    showMatrix(resultTxt, result_matrix, a, b);
 
                     break;
                 default:
@@ -502,7 +484,7 @@ public class lab1 extends AppCompatActivity {
             for (int j = 0; j < b; j++) {
                 k = 0;
                 while (k < a) {
-                    result_msg[g++] = matrix[k++][j];
+                    result_msg[g++] = result_matrix[k++][j];
                 }
             }
 
@@ -524,29 +506,59 @@ public class lab1 extends AppCompatActivity {
 
         int[] keyGenerator(String strKey) {
             int[] key;
-            int i = 0;
-            String[] tmpKey = strKey.split(" ", -1);
-            key = new int[tmpKey.length];
-            for (String str : tmpKey) {
-                if (!StringUtils.isNumeric(str.trim())) return null;
-                key[i++] = Integer.parseInt(str.trim());
+            int[] result;
+            int i, j = 0;
+            key = new int[strKey.length()];
+            result = new int[strKey.length()];
+            for (i = 0; i < result.length; i++) {
+                result[i] = i;
             }
-            return key;
+            Log.d("TAG", "Key " + strKey);
+            for (i = 0; i < strKey.length(); i++) {
+                Log.d("TAG", "Key " + strKey.charAt(i) + "  length " + strKey.length());
+                if (!Character.isDigit(strKey.charAt(i))) return null;
+                key[j++] = Integer.parseInt(String.valueOf(strKey.charAt(i)));
+            }
+
+            int tmp;
+            for (i = 0; i < key.length - 1; i++) {
+                for (j = 1; j < key.length; j++) {
+                    if (key[j - 1] >= key[j]) {
+                        tmp = key[j - 1];
+                        key[j - 1] = key[j];
+                        key[j] = tmp;
+                        tmp = result[j - 1];
+                        result[j - 1] = result[j];
+                        result[j] = tmp;
+                    }
+                }
+            }
+            for (int ind : result) {
+
+                Log.d("TAG", "key result: " + ind);
+
+            }
+            return result;
         }
 
-        boolean checkKey(int[] key, int dimen) {
+        boolean checkKey(String strKey, int dimen) {
+            int i = 0, j = 0;
+            int[] key = new int[strKey.length()];
+            for (i = 0; i < strKey.length(); i++) {
+                if (!Character.isDigit(strKey.charAt(i))) return false;
+                key[j++] = Integer.parseInt(String.valueOf(strKey.charAt(i)));
+            }
 
-            if (key.length < dimen) return false;
+            if (key.length != dimen) return false;
 
             int[] tmp = key;
             Arrays.sort(tmp);
-            for (int i = 0; i < tmp.length - 1; i++) {
+            for (i = 0; i < tmp.length - 1; i++) {
                 if (tmp[i] == tmp[i + 1]) return false;
             }
 
             for (int aKey : key) {
-                if (aKey <= 0) return false;
-                if (aKey > key.length) return false;
+                if (aKey < 0 || aKey > 9) return false;
             }
             return true;
         }

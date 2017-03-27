@@ -121,7 +121,8 @@
             android:layout_height="match_parent"
             android:layout_marginEnd="5dp"
             android:layout_weight="1"
-            android:hint="Horizontal key" />
+            android:hint="Horizontal key"
+            android:inputType="numberDecimal"/>
 
         <EditText
             android:id="@+id/second_key"
@@ -130,7 +131,8 @@
             android:layout_marginEnd="5dp"
             android:layout_marginStart="5dp"
             android:layout_weight="1"
-            android:hint="Vertical key" />
+            android:hint="Vertical key"
+            android:inputType="numberDecimal"/>
 
         <Button
             android:id="@+id/enc_btn"
