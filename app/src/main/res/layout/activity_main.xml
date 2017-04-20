@@ -25,7 +25,7 @@
             android:layout_height="100dp"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Lab 1" />
+            android:text="MATRIX" />
 
         <Button
             android:id="@+id/lab2"
@@ -35,7 +35,7 @@
             android:layout_marginEnd="5dp"
             android:layout_marginStart="5dp"
             android:layout_weight="1"
-            android:text="Lab 2" />
+            android:text="VISIONER / VERNAM" />
 
         <Button
             android:id="@+id/lab3"
@@ -60,8 +60,7 @@
             android:layout_height="100dp"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:enabled="false"
-            android:text="Lab 4" />
+            android:text="AES" />
 
         <Button
             android:id="@+id/lab5"

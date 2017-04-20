@@ -26,7 +26,12 @@
             android:name=".lab2"
             android:label="@string/title_activity_lab2"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".lab4"
+            android:label="@string/title_activity_lab4"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>
