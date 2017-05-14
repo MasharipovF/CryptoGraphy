@@ -313,16 +313,16 @@ public class lab2 extends AppCompatActivity {
                 c2 = symbolIndex(inputKeyArray[j]);
                 switch (encFlag) {
                     case "Encryption":
-                        c = (c1 + c2) % 28;
+                        c = (c1 + c2) % 27;
                         break;
                     case "Decryption":
-                        c = (c1 - c2 + 28) % 28;
+                        c = (c1 - c2 + 27) % 27;
                         break;
                     default:
-                        c = (c1 + c2) % 28;
+                        c = (c1 + c2) % 27;
                         break;
                 }
-                resultArray[i] = alphabet[c - 1];
+                resultArray[i] = alphabet[c];
                 Log.d("TAG", Character.toString(inputStrArray[i]) + "(" + c1 + ")" + getString(R.string.tab) + " + " + Character.toString(inputKeyArray[j]) + "(" + c2 + ")" + " = " + Character.toString(resultArray[i]) + "(" + c + ")\n");
                 textView.setText(textView.getText() + Character.toString(inputStrArray[i]) + "(" + c1 + ")" + "   +   " + Character.toString(inputKeyArray[j]) + "(" + c2 + ")" + "   =   " + Character.toString(resultArray[i]) + "(" + c + ")\n");
                 j++;

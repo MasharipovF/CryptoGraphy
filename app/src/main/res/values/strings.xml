@@ -6,6 +6,7 @@
     <string name="title_activity_lab2">VERNAM / VISIONER</string>
     <string name="tab">\u0009</string>
     <string name="title_activity_lab4">AES</string>
+    <string name="title_activity_a51">A5_1</string>
     <string-array name="rounds">
         <item>Initial data</item>
         <item>1 round</item>
@@ -20,4 +21,6 @@
         <item>10 round</item>
         <item>Final data</item>
     </string-array>
+    <string name="title_activity_rc4">RC4</string>
+    <string name="title_activity_a5_1">A5_1</string>
 </resources>

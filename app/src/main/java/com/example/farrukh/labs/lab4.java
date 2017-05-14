@@ -1,9 +1,5 @@
 package com.example.farrukh.labs;
 
-import android.support.annotation.IntegerRes;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -17,8 +13,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -29,12 +23,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
-
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 
 public class lab4 extends AppCompatActivity {
 
@@ -160,48 +149,33 @@ public class lab4 extends AppCompatActivity {
         public HashMap<Integer, int[][]> messageMap = new HashMap<>();
         public HashMap<Integer, int[][]> keyMap = new HashMap<>();
 
-        int[][] initKey = {
-                {0x2b, 0x28, 0xab, 0x09},
-                {0x7e, 0xae, 0xf7, 0xcf},
-                {0x15, 0xd2, 0x15, 0x4f},
-                {0x16, 0xa6, 0x88, 0x3c}
-        };
 
-        int[][] initState = {
-                {0x32, 0x88, 0x31, 0xe0},
-                {0x43, 0x5a, 0x31, 0x37},
-                {0xf6, 0x30, 0x98, 0x07},
-                {0xa8, 0x8d, 0xa2, 0x34}
-        };
+        int[][] initKey;
+
+        int[][] initState;
+
         int[][] currentState;
 
         String fullMessage = "";
 
-        int[][] cypStat = {
-                {0x39, 0x02, 0xdc, 0x19},
-                {0x25, 0xdc, 0x11, 0x6a},
-                {0x84, 0x09, 0x85, 0x0b},
-                {0x1d, 0xfb, 0x97, 0x32}
-        };
-
         int[][] cypherTextArray;
         String cypherText = "";
-        int blockMultiplier = 10;
 
         boolean flag = false;
 
-       TextView roundKeyText;
-       TextView roundKeyView ;
-       TextView subButyesText;
-       TextView subButyesView;
-       TextView shiftRowsText;
-       TextView shiftRowsView;
-       TextView mixColText ;
-       TextView mixColView ;
-       TextView addRoundKeyText;
-       TextView addRoundKeyView;
-       TextView messageText ;
-       TextView messageView ;
+        TextView roundKeyText;
+        TextView roundKeyView;
+        TextView subButyesText;
+        TextView subButyesView;
+        TextView shiftRowsText;
+        TextView shiftRowsView;
+        TextView mixColText;
+        TextView mixColView;
+        TextView addRoundKeyText;
+        TextView addRoundKeyView;
+        TextView messageText;
+        TextView messageView;
+
         /**
          * Returns a new instance of this fragment for the given section
          * number.
@@ -356,6 +330,7 @@ public class lab4 extends AppCompatActivity {
                     cypherText = "";
 
                     // generating keys
+                    initKey = generateInitData(initialKeyEdit.getText().toString());
                     keyMap.put(0, initKey);
                     roundSpinner.setSelection(0);
 
@@ -387,12 +362,10 @@ public class lab4 extends AppCompatActivity {
                     Log.d("KEY", "LENGHT = " + len);
                     switch (getArguments().getString(ARG_SECTION_NUMBER)) {
                         case "Encryption":
-                            clearMaps();
                             for (int i = 0; i < len; i++) {
                                 messageBlocksString = fullMessage.substring(16 * i, 16 * (i + 1));
-                                Log.d("KEY", "blocks = " + messageBlocksString);
                                 currentState = generateInitData(messageBlocksString);
-                                encrypt(i);
+                                encrypt();
                                 if (i == 0) {
                                     initState = currentState;
                                     showMaps(messageMap, 0, messageView);
@@ -400,12 +373,10 @@ public class lab4 extends AppCompatActivity {
                             }
                             break;
                         case "Decryption":
-                            clearMaps();
                             for (int i = 0; i < len; i++) {
                                 messageBlocksString = fullMessage.substring(16 * i, 16 * (i + 1));
-                                Log.d("KEY", "blocks = " + messageBlocksString);
                                 currentState = generateInitData(messageBlocksString);
-                                decrypt(i);
+                                decrypt();
                                 if (i == 0) {
                                     initState = currentState;
                                     showMaps(messageMap, 0, messageView);
@@ -516,9 +487,11 @@ public class lab4 extends AppCompatActivity {
             return rootView;
         }
 
-        public void encrypt(int blockNumber) {
+        public void encrypt() {
 
-            messageMap.put(blockNumber * blockMultiplier, currentState);
+            clearMaps();
+
+            messageMap.put(0, currentState);
 
             addRoundKey(messageMap.get(messageMap.size() - 1), initKey);
 
@@ -544,9 +517,11 @@ public class lab4 extends AppCompatActivity {
         }
 
 
-        public void decrypt(int blockNumber) {
+        public void decrypt() {
 
-            messageMap.put(blockNumber * blockMultiplier, currentState);
+            clearMaps();
+
+            messageMap.put(0, currentState);
 
             addRoundKey(messageMap.get(messageMap.size() - 1), roundKeyMap.get(roundKeyMap.size() - 1));
 
@@ -617,14 +592,12 @@ public class lab4 extends AppCompatActivity {
             for (i = 0; i < 4; i++) {
                 int hex = tmpArr[i];
                 tmpArr[i] = sbox[hex / 16][hex % 16] ^ arr[i][0] ^ rcon[i][roundNo];
-                Log.d("KEY", "sbox = " + Integer.toHexString(sbox[hex / 16][hex % 16]) + " + message = " + Integer.toHexString(arr[i][0]) + "  + rcon = " + Integer.toHexString(rcon[i][roundNo]) + " , answer = " + Integer.toHexString(tmpArr[i]));
                 resultArr[i][0] = tmpArr[i];
             }
 
             for (i = 1; i < 4; i++) {
                 for (j = 0; j < 4; j++) {
                     resultArr[j][i] = arr[j][i] ^ resultArr[j][i - 1];
-                    Log.d("KEY", "message = " + Integer.toHexString(arr[j][i]) + "  + roundkey  = " + Integer.toHexString(resultArr[j][i - 1]) + " , answer = " + Integer.toHexString(resultArr[j][i]));
                 }
             }
 
@@ -645,7 +618,6 @@ public class lab4 extends AppCompatActivity {
             subBytesMap.put(subBytesMap.size(), resultArray);
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
-                    Log.d("KEY", "subbytes result= " + subBytesMap.get(subBytesMap.size() - 1)[i][j]);
                 }
             }
         }
@@ -663,7 +635,6 @@ public class lab4 extends AppCompatActivity {
             subBytesMap.put(subBytesMap.size(), resultArray);
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
-                    Log.d("KEY", "invsubbytes result= " + subBytesMap.get(subBytesMap.size() - 1)[i][j]);
                 }
             }
         }
@@ -675,11 +646,7 @@ public class lab4 extends AppCompatActivity {
                     {2, 3, 0, 1},
                     {3, 0, 1, 2}
             };
-            for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < 4; j++) {
-                    Log.d("KEY", "shiftrows = " + arr[i][j]);
-                }
-            }
+
             int[][] resultArray = new int[4][4];
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
@@ -696,11 +663,6 @@ public class lab4 extends AppCompatActivity {
                     {2, 3, 0, 1},
                     {1, 2, 3, 0},
             };
-            for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < 4; j++) {
-                    Log.d("KEY", "shiftrows = " + arr[i][j]);
-                }
-            }
             int[][] resultArray = new int[4][4];
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
@@ -721,9 +683,7 @@ public class lab4 extends AppCompatActivity {
                     for (int k = 0; k < 4; k++) {
                         someval = mixColHelper(arr[k][i], mixColArray[j][k]);
                         tmp ^= someval;
-                        Log.d("KEY", "mixcols| val=" + Integer.toHexString(arr[k][i]) + " multby=" + Integer.toHexString(mixColArray[j][k]) + " result = " + Integer.toHexString(someval));
                     }
-                    Log.d("KEY", " mixcols| result = " + Integer.toHexString(tmp) + "*********************");
                     resultArray[j][i] = tmp;
                     tmp = 0x00;
                 }
@@ -736,15 +696,12 @@ public class lab4 extends AppCompatActivity {
             int[][] resultArray = new int[4][4];
             int tmp = 0x00;
             int someval;
-            //Log.d("KEY", "shift = " + arr[0][0]);
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
                     for (int k = 0; k < 4; k++) {
                         someval = mixColHelper(arr[k][i], invMixColArray[j][k]);
                         tmp ^= someval;
-                        Log.d("KEY", "invmixcols| val=" + Integer.toHexString(arr[k][i]) + " multby=" + Integer.toHexString(invMixColArray[j][k]) + " result = " + Integer.toHexString(someval));
                     }
-                    Log.d("KEY", "invmixcols| result = " + Integer.toHexString(tmp) + "*********************");
                     resultArray[j][i] = tmp;
                     tmp = 0x00;
                 }
@@ -788,7 +745,6 @@ public class lab4 extends AppCompatActivity {
             for (int i = 0; i < arr.length; i++) {
                 for (int j = 0; j < arr[0].length; j++) {
                     resultArray[i][j] = arr[i][j] ^ roundKey[i][j];
-                    Log.d("KEY", "addroundkey| message = " + Integer.toHexString(arr[i][j]) + " + roundkey = " + Integer.toHexString(roundKey[i][j]) + " == " + Integer.toHexString(resultArray[i][j]));
                 }
             }
             addRoundKeyMap.put(addRoundKeyMap.size(), resultArray);
@@ -803,7 +759,6 @@ public class lab4 extends AppCompatActivity {
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
                     char c = initStr.charAt(k);
-                    //Log.d("KEY", "CHAR = " + c + " INDEX" + Integer.toString(k));
                     resultArray[i][j] = (int) c;
                     k++;
                 }

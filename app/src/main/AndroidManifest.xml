@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.farrukh.labs">
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+       
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -30,8 +34,22 @@
         <activity
             android:name=".lab4"
             android:label="@string/title_activity_lab4"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".RC4"
+            android:label="@string/title_activity_rc4"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".A5_1"
+            android:label="@string/title_activity_a5_1"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".DiffieHellman"
+            android:label="DIFFIE HELLMAN"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>
